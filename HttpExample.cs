@@ -29,7 +29,18 @@ namespace TurtleSec.Functions
             var logger = executionContext.GetLogger("HttpExample");
             logger.LogInformation("C# HTTP trigger function processed a request... HttpExample");
 
-            var message = "Welcome to Azure Functions!";
+            var message = "Welcome to functions /HttpExample";
+
+            if (req.Method == "POST")
+            {
+                logger.LogInformation("Consuming request body...");
+                using (StreamReader sr = new StreamReader(req.Body))
+                {
+                    var messages = sr.ReadToEnd();
+                    message = String.Join("", messages);
+
+                }
+            }
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -48,7 +59,7 @@ namespace TurtleSec.Functions
         [Function("hello")]
         public HttpResponseData Hello([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request at /hello.");
+            _logger.LogInformation("C# HTTP trigger function processed a " + req.Method + " request at /hello.");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
