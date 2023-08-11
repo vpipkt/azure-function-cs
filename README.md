@@ -9,7 +9,7 @@ Working from a template and [starting tutorial](https://learn.microsoft.com/en-u
 ```bash
 dotnet clean
 dotnet build
-func start
+pushd src && func start && pod
 ```
 
 Then test with something like
