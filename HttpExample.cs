@@ -5,8 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace TurtleSec.Functions
 {
-    public class HttpExample
+    public class MultiResponse
     {
+        [QueueOutput("outqueue",Connection = "AzureWebJobsStorage")]
+        public string[] Messages { get; set; }
+        public HttpResponseData HttpResponse { get; set; }
+    }
+    
+    public class HttpExample 
+    {      
+
         private readonly ILogger _logger;
 
         public HttpExample(ILoggerFactory loggerFactory)
@@ -15,9 +23,32 @@ namespace TurtleSec.Functions
         }
 
         [Function("HttpExample")]
-        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        public static MultiResponse Multi([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
+            FunctionContext executionContext)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            var logger = executionContext.GetLogger("HttpExample");
+            logger.LogInformation("C# HTTP trigger function processed a request... HttpExample");
+
+            var message = "Welcome to Azure Functions!";
+
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            response.WriteString(message);
+
+            // Return a response to both HTTP trigger and storage output binding.
+            return new MultiResponse()
+            {
+                // Write a single message.
+                Messages = new string[] { message },
+                HttpResponse = response
+            };
+        }
+
+
+        [Function("hello")]
+        public HttpResponseData Hello([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request at /hello.");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -27,17 +58,17 @@ namespace TurtleSec.Functions
             return response;
         }
 
-        // [Function("decorator")]
-        // public HttpResponseData Deco2([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
-        // {
-        //     _logger.LogInformation("C# HTTP trigger function processed a request.");
+        [Function("decorator")]
+        public HttpResponseData Deco2([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request at /decorator.");
 
-        //     var response = req.CreateResponse(HttpStatusCode.OK);
-        //     response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-        //     response.WriteString("Its decorative!");
+            response.WriteString("Its decorative!");
 
-        //     return response;
-        // }
+            return response;
+        }
     }
 }
