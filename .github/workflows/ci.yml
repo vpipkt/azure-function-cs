@@ -1,0 +1,31 @@
+
+name: CI
+
+on:
+  push
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './src'   # set this to the path to your function app project, defaults to the repository root
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest 
+    environment: dev
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
+
+    - name: Setup DotNet ${{ vars.DOTNET_VERSION }} Environment
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+    - name: 'build'
+      shell: bash 
+      run: dotnet build 
+    
+    - name: 'test'
+      shell: bash 
+      run: |
+        pushd tests 
+        dotnet test

@@ -9,7 +9,7 @@ Working from a template and [starting tutorial](https://learn.microsoft.com/en-u
 ```bash
 dotnet clean
 dotnet build
-func start
+pushd src && func start && popd
 ```
 
 Then test with something like
@@ -29,3 +29,9 @@ See `Function App` in Azure Portal and set the `FUNCTION_URL` variable.
 
     curl --header "Content-Type: application/json" -X POST ${FUNCTION_URL}/api/httpexample --data '{"id": 409, "quantity": -2}'
     
+
+## Testing
+
+```
+pushd tests && dotnet test && popd
+```
