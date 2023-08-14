@@ -77,7 +77,7 @@ namespace TurtleSec.Functions
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-            response.WriteString("Its decorative!");
+            response.WriteString("Its decorative!\nv0.0.1");
 
             return response;
         }
